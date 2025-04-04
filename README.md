@@ -10,6 +10,7 @@ Magic Component Platform (MCP) is a powerful AI-driven tool that helps developer
 - **Multi-IDE Support**:
   - [Cursor](https://cursor.com) IDE integration
   - [Windsurf](https://windsurf.ai) support
+  - [VSCode](https://code.visualstudio.com/) support
   - [VSCode + Cline](https://cline.bot) integration (Beta)
 - **Modern Component Library**: Access to a vast collection of pre-built, customizable components inspired by [21st.dev](https://21st.dev)
 - **Real-time Preview**: Instantly see your components as you create them
@@ -85,6 +86,66 @@ Config file locations:
 - Windsurf: `~/.codeium/windsurf/mcp_config.json`
 - Cline: `~/.cline/mcp_config.json`
 - Claude: `~/.claude/mcp_config.json`
+
+#### Method 3: VS Code Installation
+
+For one-click installation, click one of the install buttons below:
+
+[![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-NPM-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=%4021st-dev%2Fmagic&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%4021st-dev%2Fmagic%40latest%22%5D%2C%22env%22%3A%7B%22API_KEY%22%3A%22%24%7Binput%3AapiKey%7D%22%7D%7D&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22apiKey%22%2C%22description%22%3A%2221st.dev+Magic+API+Key%22%2C%22password%22%3Atrue%7D%5D) [![Install with NPX in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-NPM-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=%4021st-dev%2Fmagic&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%4021st-dev%2Fmagic%40latest%22%5D%2C%22env%22%3A%7B%22API_KEY%22%3A%22%24%7Binput%3AapiKey%7D%22%7D%7D&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22apiKey%22%2C%22description%22%3A%2221st.dev+Magic+API+Key%22%2C%22password%22%3Atrue%7D%5D&quality=insiders)
+
+##### Manual VS Code Setup
+
+First, check the install buttons above for one-click installation. For manual setup:
+
+Add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`:
+
+```json
+{
+  "mcp": {
+    "inputs": [
+      {
+        "type": "promptString",
+        "id": "apiKey",
+        "description": "21st.dev Magic API Key",
+        "password": true
+      }
+    ],
+    "servers": {
+      "@21st-dev/magic": {
+        "command": "npx",
+        "args": ["-y", "@21st-dev/magic@latest"],
+        "env": {
+          "API_KEY": "${input:apiKey}"
+        }
+      }
+    }
+  }
+}
+```
+
+Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace:
+
+```json
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "apiKey",
+      "description": "21st.dev Magic API Key",
+      "password": true
+    }
+  ],
+  "servers": {
+    "@21st-dev/magic": {
+      "command": "npx",
+      "args": ["-y", "@21st-dev/magic@latest"],
+      "env": {
+        "API_KEY": "${input:apiKey}"
+      }
+    }
+  }
+}
+```
 
 ## ❓ FAQ
 
