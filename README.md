@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/21st-dev-magic-mcp-badge.png)](https://mseep.ai/app/21st-dev-magic-mcp)
+
 # 21st.dev Magic AI Agent
 
 ![MCP Banner](https://21st.dev/magic-agent-og-image.png)
