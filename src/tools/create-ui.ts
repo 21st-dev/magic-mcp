@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BaseTool } from "../utils/base-tool.js";
+import { BaseTool, ToolAnnotations } from "../utils/base-tool.js";
 import { twentyFirstClient } from "../utils/http-client.js";
 import { CallbackServer } from "../utils/callback-server.js";
 import open from "open";
@@ -19,6 +19,11 @@ interface CreateUiResponse {
 export class CreateUiTool extends BaseTool {
   name = UI_TOOL_NAME;
   description = UI_TOOL_DESCRIPTION;
+  annotations: ToolAnnotations = {
+    title: "Create UI Component",
+    destructiveHint: true,
+    openWorldHint: true,
+  };
 
   schema = z.object({
     message: z.string().describe("Full users message"),
