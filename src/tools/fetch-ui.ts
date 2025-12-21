@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BaseTool } from "../utils/base-tool.js";
+import { BaseTool, ToolAnnotations } from "../utils/base-tool.js";
 import { twentyFirstClient } from "../utils/http-client.js";
 
 const FETCH_UI_TOOL_NAME = "21st_magic_component_inspiration";
@@ -15,6 +15,11 @@ interface FetchUiResponse {
 export class FetchUiTool extends BaseTool {
   name = FETCH_UI_TOOL_NAME;
   description = FETCH_UI_TOOL_DESCRIPTION;
+  annotations: ToolAnnotations = {
+    title: "Fetch UI Inspiration",
+    readOnlyHint: true,
+    openWorldHint: true,
+  };
 
   schema = z.object({
     message: z.string().describe("Full users message"),

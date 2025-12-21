@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { promises as fs } from "fs";
-import { BaseTool } from "../utils/base-tool.js";
+import { BaseTool, ToolAnnotations } from "../utils/base-tool.js";
 
 // Types for SVGL API responses
 interface ThemeOptions {
@@ -49,6 +49,11 @@ Each result includes:
 export class LogoSearchTool extends BaseTool {
   name = LOGO_TOOL_NAME;
   description = LOGO_TOOL_DESCRIPTION;
+  annotations: ToolAnnotations = {
+    title: "Search Logos",
+    destructiveHint: true,
+    openWorldHint: true,
+  };
 
   schema = z.object({
     queries: z
