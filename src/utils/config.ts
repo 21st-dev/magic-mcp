@@ -1,5 +1,7 @@
 export interface Config {
   apiKey?: string;
+  canvas?: boolean;
+  github?: boolean;
 }
 
 const parseArguments = (): Config => {
@@ -7,6 +9,18 @@ const parseArguments = (): Config => {
 
   // Command line arguments override environment variables
   process.argv.forEach((arg) => {
+    // Check for --canvas flag
+    if (arg === "--canvas") {
+      config.canvas = true;
+      return;
+    }
+
+    // Check for --github flag
+    if (arg === "--github") {
+      config.github = true;
+      return;
+    }
+
     const keyValuePatterns = [
       /^([A-Z_]+)=(.+)$/, // API_KEY=value format
       /^--([A-Z_]+)=(.+)$/, // --API_KEY=value format

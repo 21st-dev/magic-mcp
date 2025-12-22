@@ -1,9 +1,9 @@
+import open from "open";
 import { z } from "zod";
 import { BaseTool } from "../utils/base-tool.js";
-import { twentyFirstClient } from "../utils/http-client.js";
 import { CallbackServer } from "../utils/callback-server.js";
-import open from "open";
-import { getContentOfFile } from "../utils/get-content-of-file.js";
+import { config } from "../utils/config.js";
+import { git } from "../utils/git-operations.js";
 
 const UI_TOOL_NAME = "21st_magic_component_builder";
 const UI_TOOL_DESCRIPTION = `
@@ -43,7 +43,8 @@ export class CreateUiTool extends BaseTool {
   });
 
   async execute({
-    standaloneRequestQuery
+    standaloneRequestQuery,
+    absolutePathToProjectDirectory,
   }: z.infer<typeof this.schema>): Promise<{
     content: Array<{ type: "text"; text: string }>;
   }> {
@@ -52,13 +53,90 @@ export class CreateUiTool extends BaseTool {
       const callbackPromise = server.waitForCallback();
       const port = server.getPort();
 
-      open(`http://21st.dev/magic-chat?q=${encodeURIComponent(standaloneRequestQuery)}&mcp=true&port=${port}`);
+      let url: string = `http://21st.dev/magic-chat?q=${encodeURIComponent(
+        standaloneRequestQuery
+      )}&mcp=true&port=${port}`;
+
+      if (config.canvas) {
+        const params = new URLSearchParams({
+          q: standaloneRequestQuery,
+          mcp: "true",
+          port: port.toString(),
+        });
+
+        if (config.github) {
+          try {
+            const projectDir = absolutePathToProjectDirectory;
+
+            const salt = Math.random().toString(36).substring(2, 8);
+            const slug = `temp-${salt}-${Date.now()}`;
+            const branchName = `21st/${slug}`;
+
+            const originalBranch = await git(
+              projectDir,
+              "rev-parse --abbrev-ref HEAD"
+            );
+            const status = await git(projectDir, "status --porcelain");
+            const hasLocalChanges = status.length > 0;
+            let stashed = false;
+
+            // Get repo in "owner/repo" format from remote URL
+            const remoteUrl = await git(projectDir, "remote get-url origin");
+            const repoMatch = remoteUrl.match(/github\.com[/:](.*?)(\.git)?$/);
+            const repo = repoMatch ? repoMatch[1] : "";
+
+            // 1. Stash changes if any (preserves staged/unstaged/untracked)
+            if (hasLocalChanges) {
+              await git(projectDir, `stash push -u -m "21st-${slug}"`);
+              stashed = true;
+            }
+
+            // 2. Create new branch
+            await git(projectDir, `checkout -b ${branchName}`);
+
+            // 3. Apply stash if we stashed
+            if (stashed) {
+              await git(projectDir, "stash apply");
+            }
+
+            // 4. Stage all and commit (--allow-empty for no changes case)
+            await git(projectDir, "add -A");
+            await git(
+              projectDir,
+              `commit -m "WIP: magic-ui init" --allow-empty`
+            );
+
+            // 5. Push to origin (throws error if fails)
+            await git(projectDir, `push -u origin ${branchName}`);
+
+            // 6. Restore original state
+            await git(projectDir, `checkout ${originalBranch}`);
+            if (stashed) {
+              await git(projectDir, "stash pop");
+            }
+
+            // Add branch/repo only on success
+            params.set("branch", branchName);
+            params.set("repo", repo);
+            params.set("originalBranch", originalBranch);
+          } catch (error) {
+            console.error(
+              "Error with git operations, falling back to canvas without branch/repo",
+              error
+            );
+          }
+        }
+
+        url = `https://21st.dev/canvas/new?${params.toString()}`;
+      }
+
+      open(url);
 
       const { data } = await callbackPromise;
 
       const prompt = data || "// No component data received. Please try again.";
 
-      const responseToUser = ` 
+      const responseToUser = `
 ${prompt}
 
 ## Shadcn/ui instructions
