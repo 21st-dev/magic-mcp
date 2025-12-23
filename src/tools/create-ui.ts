@@ -45,6 +45,7 @@ export class CreateUiTool extends BaseTool {
   async execute({
     standaloneRequestQuery,
     absolutePathToProjectDirectory,
+    message,
   }: z.infer<typeof this.schema>): Promise<{
     content: Array<{ type: "text"; text: string }>;
   }> {
@@ -59,7 +60,7 @@ export class CreateUiTool extends BaseTool {
 
       if (config.canvas) {
         const params = new URLSearchParams({
-          q: standaloneRequestQuery,
+          q: `Primary request: ${message} \n\nAdditional context: ${standaloneRequestQuery}`,
           mcp: "true",
           port: port.toString(),
         });
