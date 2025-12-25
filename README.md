@@ -1,5 +1,6 @@
 # 21st.dev Magic AI Agent
 
+[![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/21st-dev/magic-mcp)](https://archestra.ai/mcp-catalog/21st-dev__magic-mcp)
 ![MCP Banner](https://21st.dev/magic-agent-og-image.png)
 
 Magic Component Platform (MCP) is a powerful AI-driven tool that helps developers create beautiful, modern UI components instantly through natural language descriptions. It integrates seamlessly with popular IDEs and provides a streamlined workflow for UI development.
