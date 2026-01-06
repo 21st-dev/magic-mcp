@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BaseTool } from "../utils/base-tool.js";
+import { BaseTool, ToolAnnotations } from "../utils/base-tool.js";
 import { twentyFirstClient } from "../utils/http-client.js";
 import { getContentOfFile } from "../utils/get-content-of-file.js";
 
@@ -17,6 +17,11 @@ interface RefineUiResponse {
 export class RefineUiTool extends BaseTool {
   name = REFINE_UI_TOOL_NAME;
   description = REFINE_UI_TOOL_DESCRIPTION;
+  annotations: ToolAnnotations = {
+    title: "Refine UI Component",
+    destructiveHint: true,
+    openWorldHint: true,
+  };
 
   schema = z.object({
     userMessage: z.string().describe("Full user's message about UI refinement"),

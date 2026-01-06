@@ -1,6 +1,6 @@
 import open from "open";
 import { z } from "zod";
-import { BaseTool } from "../utils/base-tool.js";
+import { BaseTool, ToolAnnotations } from "../utils/base-tool.js";
 import { CallbackServer } from "../utils/callback-server.js";
 import { config } from "../utils/config.js";
 import { git } from "../utils/git-operations.js";
@@ -19,6 +19,11 @@ interface CreateUiResponse {
 export class CreateUiTool extends BaseTool {
   name = UI_TOOL_NAME;
   description = UI_TOOL_DESCRIPTION;
+  annotations: ToolAnnotations = {
+    title: "Create UI Component",
+    destructiveHint: true,
+    openWorldHint: true,
+  };
 
   schema = z.object({
     message: z.string().describe("Full users message"),
