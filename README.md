@@ -4,6 +4,10 @@
 
 Magic Component Platform (MCP) is a powerful AI-driven tool that helps developers create beautiful, modern UI components instantly through natural language descriptions. It integrates seamlessly with popular IDEs and provides a streamlined workflow for UI development.
 
+<a href="https://glama.ai/mcp/servers/ejfrxlc89z">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/ejfrxlc89z/badge" alt="Magic Component Platform (MCP) MCP server" />
+</a>
+
 ## 🌟 Features
 
 - **AI-Powered UI Generation**: Create UI components by describing them in natural language
