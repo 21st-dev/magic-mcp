@@ -14,5 +14,7 @@ COPY . .
 # Build TypeScript
 RUN npm run build
 
-# Command will be provided by smithery.yaml
-CMD ["node", "dist/index.js"] 
+EXPOSE 8080
+
+# Wrap stdio MCP server with mcp-proxy (streamable HTTP + SSE on port 8080)
+CMD ["npx", "mcp-proxy", "--port", "8080", "--", "node", "dist/index.js"] 
