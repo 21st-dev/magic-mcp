@@ -64,6 +64,16 @@ The Magic MCP server requires configuration based on the client type. Below are 
 
 2. Replace `<API_KEY>` with the actual TWENTY_FIRST_API_KEY value.
 
+#### For AdaL CLI
+
+If you're using [AdaL CLI](https://sylph.ai/), add the Magic MCP server with a single command:
+
+```bash
+/mcp add magic --command npx --args "-y,@21st-dev/magic@latest,API_KEY=your-api-key"
+```
+
+Replace `<API_KEY>` with the actual TWENTY_FIRST_API_KEY value.
+
 ### 2. Verification
 
 To verify the installation:

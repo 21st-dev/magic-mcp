@@ -12,6 +12,7 @@ Magic Component Platform (MCP) is a powerful AI-driven tool that helps developer
   - [Windsurf](https://windsurf.ai) support
   - [VSCode](https://code.visualstudio.com/) support
   - [VSCode + Cline](https://cline.bot) integration (Beta)
+  - [AdaL CLI](https://sylph.ai/) support
 - **Modern Component Library**: Access to a vast collection of pre-built, customizable components inspired by [21st.dev](https://21st.dev)
 - **Real-time Preview**: Instantly see your components as you create them
 - **TypeScript Support**: Full TypeScript support for type-safe development
@@ -45,6 +46,7 @@ Magic Component Platform (MCP) is a powerful AI-driven tool that helps developer
   - Cursor
   - Windsurf
   - VSCode (with Cline extension)
+  - [AdaL CLI](https://sylph.ai/)
 
 ### Installation
 
@@ -63,7 +65,7 @@ One command to install and configure MCP for your IDE:
 npx @21st-dev/cli@latest install <client> --api-key <key>
 ```
 
-Supported clients: cursor, windsurf, cline, claude
+Supported clients: cursor, windsurf, cline, claude, adal
 
 #### Method 2: Manual Configuration
 
@@ -145,6 +147,14 @@ Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace
     }
   }
 }
+```
+
+#### Method 4: AdaL CLI
+
+If you're using [AdaL CLI](https://sylph.ai/), add the Magic MCP server with a single command:
+
+```bash
+/mcp add magic --command npx --args "-y,@21st-dev/magic@latest,API_KEY=your-api-key"
 ```
 
 ## ❓ FAQ
