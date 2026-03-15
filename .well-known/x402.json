@@ -1,0 +1,18 @@
+{
+  "name": "21st-dev/magic-mcp",
+  "description": "Create crafted UI components inspired by the best 21st.dev design engineers.",
+  "accepts": [
+    {
+      "network": "eip155:8453",
+      "asset": "USDC",
+      "address": "YOUR_WALLET_ADDRESS"
+    }
+  ],
+  "resources": [
+    {
+      "path": "/ui",
+      "price": "0.01",
+      "description": "Pay-per-call access to /ui"
+    }
+  ]
+}
