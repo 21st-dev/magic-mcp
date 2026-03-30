@@ -215,3 +215,8 @@ MIT License
 ---
 
 For more information, join our [Discord community](https://discord.gg/Qx4rFunHfm) or visit [21st.dev/magic](https://21st.dev/magic).
+
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/21st-dev-magic-mcp).
+
