@@ -1,0 +1,24 @@
+{
+  "name": "magic-mcp",
+  "version": "0.1.0",
+  "description": "Frontend development assistant from Codex via 21st dev Magic",
+  "author": {
+    "name": "21st-dev",
+    "url": "https://github.com/21st-dev/magic-mcp"
+  },
+  "homepage": "https://github.com/21st-dev/magic-mcp",
+  "repository": "https://github.com/21st-dev/magic-mcp",
+  "keywords": [
+    "mcp",
+    "codex"
+  ],
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Magic MCP",
+    "shortDescription": "Frontend development assistant from Codex via 21st dev Magic",
+    "longDescription": "It is like v0 but in your Cursor/WindSurf/Cline. 21st dev Magic MCP server for working with your frontend.",
+    "category": "Development",
+    "websiteURL": "https://github.com/21st-dev/magic-mcp"
+  },
+  "skills": "./skills/"
+}
