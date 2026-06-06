@@ -135,7 +135,19 @@ export class CreateUiTool extends BaseTool {
 
       const { data } = await callbackPromise;
 
-      const prompt = data || "// No component data received. Please try again.";
+      // data is the raw body string from the callback server.
+      // It may be a JSON string like '{"component": "..."}' or '{"text": "..."}'.
+      // Parse it to extract the actual component code.
+      let prompt = "// No component data received. Please try again.";
+      if (typeof data === "string" && data.trim() !== "") {
+        try {
+          const parsed = JSON.parse(data);
+          prompt = parsed.component || parsed.text || data;
+        } catch {
+          // Not JSON, use as-is
+          prompt = data;
+        }
+      }
 
       const responseToUser = `
 ${prompt}
