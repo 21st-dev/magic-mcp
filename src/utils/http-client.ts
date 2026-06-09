@@ -59,6 +59,14 @@ const createMethod = (method: HttpMethod) => {
     });
 
     console.log("response", response);
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      throw new Error(
+        `HTTP ${response.status} ${response.statusText}${errorText ? `: ${errorText}` : ""}`
+      );
+    }
+
     return { status: response.status, data: (await response.json()) as T };
   };
 };
