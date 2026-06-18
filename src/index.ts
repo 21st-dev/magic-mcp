@@ -4,6 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
 import { setupJsonConsole } from "./utils/console.js";
+import { installStdoutWriteGuard } from "./utils/safe-transport.js";
 
 import { CreateUiTool } from "./tools/create-ui.js";
 import { FetchUiTool } from "./tools/fetch-ui.js";
@@ -69,6 +70,7 @@ async function runServer() {
     cleanup();
   });
 
+  installStdoutWriteGuard();
   await server.connect(transport);
   console.log(`Server started (PID: ${process.pid})`);
 }
