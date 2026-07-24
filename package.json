@@ -1,8 +1,8 @@
 {
   "name": "@21st-dev/magic",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
-  "description": "Magic MCP is now the 21st MCP. This package is a thin proxy to https://21st.dev/api/mcp kept for old configs - new setups should use `npx @21st-dev/cli@latest init`.",
+  "description": "Magic MCP is now the 21st MCP. This package is a compatibility proxy kept for old configs - new setups should use `npx @21st-dev/cli@latest init`. Setup: https://21st.dev/mcp",
   "homepage": "https://21st.dev/mcp",
   "repository": {
     "type": "git",

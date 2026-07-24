@@ -1,6 +1,6 @@
 # Magic MCP → 21st MCP
 
-> **Magic MCP is now the 21st MCP.** The Magic MCP server (`@21st-dev/magic`) has been replaced by the unified **21st MCP** at `https://21st.dev/api/mcp`, installed via the **21st CLI**. This package remains published as a thin compatibility proxy so old configs keep working.
+> **Magic MCP is now the 21st MCP.** The Magic MCP server (`@21st-dev/magic`) has been replaced by the unified **21st MCP**, installed via the **21st CLI** — setup at [21st.dev/mcp](https://21st.dev/mcp). This package remains published as a thin compatibility proxy so old configs keep working.
 
 ## Install the 21st MCP (recommended)
 
@@ -27,7 +27,7 @@ Get an API key at [21st.dev/mcp](https://21st.dev/mcp).
 
 ## What this package does now (v0.2.0+)
 
-`npx -y @21st-dev/magic@latest API_KEY="..."` still works: since v0.2.0 it is a small stdio proxy that forwards every MCP message to `https://21st.dev/api/mcp`. Existing `mcp.json` entries that reference `@21st-dev/magic` keep functioning — but they now speak to the same server as the 21st CLI, with the full current toolset.
+`npx -y @21st-dev/magic@latest API_KEY="..."` still works: since v0.2.0 it is a small stdio proxy that forwards every MCP message to the 21st MCP server. Existing `mcp.json` entries that reference `@21st-dev/magic` keep functioning — but they now speak to the same server as the 21st CLI, with the full current toolset.
 
 The API key is accepted in all the historical forms: positional `API_KEY="..."`, `--API_KEY=...`, `/API_KEY:...`, `-API_KEY ...`, or the `TWENTY_FIRST_API_KEY` / `API_KEY_21ST` environment variables.
 
