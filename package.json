@@ -1,9 +1,9 @@
 {
   "name": "@21st-dev/magic",
-  "version": "0.1.1-beta.1",
+  "version": "0.2.0",
   "type": "module",
-  "description": "Magic MCP UI builder by 21st.dev",
-  "homepage": "https://21st.dev/magic",
+  "description": "Magic MCP is now the 21st MCP. This package is a thin proxy to https://21st.dev/api/mcp kept for old configs - new setups should use `npx @21st-dev/cli@latest init`.",
+  "homepage": "https://21st.dev/mcp",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/21st-dev/magic-mcp.git"
@@ -21,39 +21,21 @@
     "UI",
     "frontend",
     "21st.dev",
-    "21",
-    "magic"
+    "21st",
+    "magic",
+    "magic-mcp"
   ],
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc && shx chmod +x dist/*.js",
-    "build:prod": "npm run build && npm run test",
-    "debug": "npm run build && npx @modelcontextprotocol/inspector node dist/index.js DEBUG=true",
-    "start": "node dist/index.js",
-    "prepare": "npm run build:prod",
-    "dev": "nodemon --watch src --ext ts,json --exec \"npm run build\"",
-    "publish-patch": "npm version patch && npm run build:prod && npm publish --access public",
-    "test": "jest"
+    "prepublishOnly": "npm run build",
+    "start": "node dist/index.js"
   },
   "author": "serafim@21st.dev",
   "license": "ISC",
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.25.3",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
-    "cors": "^2.8.5",
-    "open": "^10.1.0",
-    "zod": "^3.24.2"
-  },
   "devDependencies": {
-    "@types/axios": "^0.9.36",
-    "@types/jest": "^29.5.14",
     "@types/node": "^22.13.4",
-    "@types/react": "^19.0.12",
-    "jest": "^29.7.0",
-    "nodemon": "^3.1.9",
     "shx": "^0.3.4",
-    "ts-jest": "^29.1.2",
     "typescript": "^5.8.2"
   },
   "engines": {

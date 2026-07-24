@@ -1,114 +1,46 @@
-# Magic MCP Server Installation Guide
+# Magic MCP Server Installation Guide (now the 21st MCP)
 
-This guide is specifically designed for AI agents like Cline to install and configure the Magic MCP server.
+This guide is for AI agents installing the 21st MCP (formerly "Magic MCP").
 
-## Prerequisites
+**Magic MCP has been replaced by the unified 21st MCP.** Do not install `@21st-dev/magic` for new setups — it is only a compatibility proxy. Install the 21st MCP directly:
 
-1. Node.js (Latest LTS version)
-2. A valid TWENTY_FIRST_API_KEY from [21st.dev/magic](https://21st.dev/magic)
+## Recommended installation
 
-## Installation Steps
+```bash
+npx @21st-dev/cli@latest init --client <cursor|claude|vscode|windsurf|codex>
+```
 
-### 1. Configuration Setup
-
-The Magic MCP server requires configuration based on the client type. Below are the setup instructions for each supported client:
-
-#### For Windsurf
-
-1. Create or modify the configuration file at `~/.codeium/windsurf/mcp_config.json`:
+Or add the HTTP server manually to the client's MCP config:
 
 ```json
 {
   "mcpServers": {
-    "magic": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@smithery/cli@latest",
-        "install",
-        "@21st-dev/magic-mcp",
-        "--client",
-        "windsurf"
-      ],
-      "env": {
-        "TWENTY_FIRST_API_KEY": "<API_KEY>"
-      }
+    "21st": {
+      "url": "https://21st.dev/api/mcp",
+      "headers": { "x-api-key": "YOUR_21ST_API_KEY" }
     }
   }
 }
 ```
 
-2. Replace `<API_KEY>` with the actual TWENTY_FIRST_API_KEY value.
-
-#### For Cline
-
-1. Create or modify the MCP configuration file:
+For clients that only support stdio servers, the compatibility proxy works:
 
 ```json
 {
   "mcpServers": {
-    "@21st-dev-magic-mcp": {
+    "21st": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@21st-dev/magic-mcp",
-        "--config",
-        "\"{\\\"TWENTY_FIRST_API_KEY\\\":\\\"<API_KEY>\\\"}\""
-      ]
+      "args": ["-y", "@21st-dev/magic@latest"],
+      "env": { "API_KEY_21ST": "YOUR_21ST_API_KEY" }
     }
   }
 }
 ```
 
-2. Replace `<API_KEY>` with the actual TWENTY_FIRST_API_KEY value.
+## API key
 
-### 2. Verification
+Get a key at https://21st.dev/mcp. Old Magic keys (from the retired Magic console) were reset and no longer work.
 
-To verify the installation:
+## Tool names
 
-1. The MCP server should appear in the list of available servers
-2. Test the connection by sending a simple command:
-   ```
-   /ui create a basic button
-   ```
-
-## Troubleshooting
-
-Common issues and solutions:
-
-1. If the server fails to start:
-
-   - Verify the API key is valid
-   - Check Node.js version (should be LTS)
-   - Ensure all dependencies are installed
-
-2. If components fail to generate:
-   - Verify network connectivity
-   - Check API key permissions
-   - Ensure the command format is correct
-
-## Environment Variables
-
-Required environment variables:
-
-- `TWENTY_FIRST_API_KEY`: Your Magic API key from 21st.dev
-
-## Additional Notes
-
-- The server automatically handles TypeScript and React components
-- No additional configuration is needed for basic usage
-- The server supports hot reloading for development
-
-## Support
-
-If you encounter any issues:
-
-1. Check the [FAQ section](https://21st.dev/magic/docs/faq)
-2. Join our [Discord community](https://discord.gg/Qx4rFunHfm)
-3. Submit an issue on [GitHub](https://github.com/serafimcloud/21st)
-
----
-
-This installation guide is maintained by the Magic team. For updates and more information, visit [21st.dev/magic](https://21st.dev/magic).
+Legacy Magic tool names (`21st_magic_component_builder`, `21st_magic_component_inspiration`, `21st_magic_component_refiner`, `logo_search`) are still accepted and translated server-side. The current names are `generate`, `get_inspiration`, `search`, `get_component`, `search_logo`, and more — call `tools/list` for the full set.

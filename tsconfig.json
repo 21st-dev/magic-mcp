@@ -10,8 +10,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["node", "jest"]
+    "types": ["node"]
   },
-  "include": ["src/**/*", "preview-build"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

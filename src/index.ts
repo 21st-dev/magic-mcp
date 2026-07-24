@@ -1,81 +1,194 @@
 #!/usr/bin/env node
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+// Magic MCP is now the 21st MCP.
+//
+// This package used to be a standalone stdio MCP server talking to
+// magic.21st.dev. Since 0.2.0 it is a thin stdio<->HTTP proxy to the unified
+// 21st MCP endpoint (https://21st.dev/api/mcp), kept alive because the old
+// install command (`npx -y @21st-dev/magic@latest API_KEY="..."`) is baked
+// into countless agent configs and model memories. New setups should use:
+//
+//   npx @21st-dev/cli@latest init --client <cursor|claude|vscode|windsurf|codex>
+//
+// The server keeps the legacy Magic tool names callable
+// (21st_magic_component_builder, 21st_magic_component_inspiration,
+// 21st_magic_component_refiner, logo_search), so old agent muscle memory
+// still works through this proxy.
 
-import { setupJsonConsole } from "./utils/console.js";
+import { createInterface } from "node:readline";
 
-import { CreateUiTool } from "./tools/create-ui.js";
-import { FetchUiTool } from "./tools/fetch-ui.js";
-import { LogoSearchTool } from "./tools/logo-search.js";
-import { RefineUiTool } from "./tools/refine-ui.js";
+const VERSION = "0.2.0";
+const DEFAULT_ENDPOINT = "https://21st.dev/api/mcp";
 
-setupJsonConsole();
-
-const VERSION = "0.0.46";
-const server = new McpServer({
-  name: "21st-magic",
-  version: VERSION,
-});
-
-// Register tools
-new CreateUiTool().register(server);
-new LogoSearchTool().register(server);
-new FetchUiTool().register(server);
-new RefineUiTool().register(server);
-
-async function runServer() {
-  const transport = new StdioServerTransport();
-  console.log(`Starting server v${VERSION} (PID: ${process.pid})`);
-
-  let isShuttingDown = false;
-
-  const cleanup = () => {
-    if (isShuttingDown) return;
-    isShuttingDown = true;
-
-    console.log(`Shutting down server (PID: ${process.pid})...`);
-    try {
-      transport.close();
-    } catch (error) {
-      console.error(`Error closing transport (PID: ${process.pid}):`, error);
+// ---------------------------------------------------------------------------
+// API key resolution - every format the old Magic client ever accepted, plus
+// the new CLI's API_KEY_21ST. Positional `API_KEY="x"` is the form models
+// memorized from the old README.
+// ---------------------------------------------------------------------------
+function resolveApiKey(): string | undefined {
+  const patterns = [
+    /^([A-Z_0-9]+)=(.+)$/, // API_KEY=value
+    /^--([A-Z_0-9]+)=(.+)$/, // --API_KEY=value
+    /^\/([A-Z_0-9]+):(.+)$/, // /API_KEY:value (Windows style)
+    /^-([A-Z_0-9]+)=(.+)$/, // -API_KEY=value
+  ];
+  const argv = process.argv.slice(2);
+  const fromArgs: Record<string, string> = {};
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    let matched = false;
+    for (const re of patterns) {
+      const m = arg.match(re);
+      if (m) {
+        fromArgs[m[1]] = stripQuotes(m[2]);
+        matched = true;
+        break;
+      }
     }
-    console.log(`Server closed (PID: ${process.pid})`);
-    process.exit(0);
-  };
-
-  transport.onerror = (error: Error) => {
-    console.error(`Transport error (PID: ${process.pid}):`, error);
-    cleanup();
-  };
-
-  transport.onclose = () => {
-    console.log(`Transport closed unexpectedly (PID: ${process.pid})`);
-    cleanup();
-  };
-
-  process.on("SIGTERM", () => {
-    console.log(`Received SIGTERM (PID: ${process.pid})`);
-    cleanup();
-  });
-
-  process.on("SIGINT", () => {
-    console.log(`Received SIGINT (PID: ${process.pid})`);
-    cleanup();
-  });
-
-  process.on("beforeExit", () => {
-    console.log(`Received beforeExit (PID: ${process.pid})`);
-    cleanup();
-  });
-
-  await server.connect(transport);
-  console.log(`Server started (PID: ${process.pid})`);
+    // `-API_KEY value` (separate argv entries)
+    if (!matched && /^-[A-Z_0-9]+$/.test(arg) && argv[i + 1]) {
+      fromArgs[arg.slice(1)] = stripQuotes(argv[++i]);
+    }
+  }
+  return (
+    fromArgs.API_KEY ??
+    fromArgs.TWENTY_FIRST_API_KEY ??
+    fromArgs.API_KEY_21ST ??
+    process.env.TWENTY_FIRST_API_KEY ??
+    process.env.API_KEY_21ST ??
+    process.env.API_KEY
+  );
 }
 
-runServer().catch((error) => {
-  console.error(`Fatal error running server (PID: ${process.pid}):`, error);
-  if (!process.exitCode) {
-    process.exit(1);
+function stripQuotes(v: string): string {
+  const t = v.trim();
+  if (
+    (t.startsWith('"') && t.endsWith('"')) ||
+    (t.startsWith("'") && t.endsWith("'"))
+  ) {
+    return t.slice(1, -1);
   }
+  return t;
+}
+
+const apiKey = resolveApiKey();
+const endpoint = process.env.MCP_URL_21ST || DEFAULT_ENDPOINT;
+
+// stderr only - stdout is the JSON-RPC channel.
+console.error(
+  `Magic MCP is now the 21st MCP - proxying to ${endpoint} (shim v${VERSION}).`,
+);
+if (!apiKey) {
+  console.error(
+    "No API key found. Old Magic keys were reset - get a fresh key at https://21st.dev/mcp " +
+      'and pass it as API_KEY="..." (or env TWENTY_FIRST_API_KEY / API_KEY_21ST).',
+  );
+}
+
+// ---------------------------------------------------------------------------
+// stdio <-> HTTP proxy. One POST per inbound JSON-RPC message; the endpoint
+// answers plain JSON (or empty for notifications). Mcp-Session-Id from the
+// initialize response is echoed on subsequent requests so capability
+// negotiation (e.g. inline UI) keeps working through the proxy.
+// ---------------------------------------------------------------------------
+let sessionId: string | undefined;
+
+type JsonRpcMsg = { id?: unknown; method?: unknown };
+
+function writeOut(obj: unknown): void {
+  process.stdout.write(JSON.stringify(obj) + "\n");
+}
+
+function rpcError(id: unknown, code: number, message: string) {
+  return { jsonrpc: "2.0", id: id ?? null, error: { code, message } };
+}
+
+async function forward(line: string): Promise<void> {
+  let msg: JsonRpcMsg | JsonRpcMsg[];
+  try {
+    msg = JSON.parse(line);
+  } catch {
+    writeOut(rpcError(null, -32700, "Parse error"));
+    return;
+  }
+
+  const single = !Array.isArray(msg) ? msg : undefined;
+  const expectsReply = Array.isArray(msg)
+    ? msg.some((m) => m && m.id !== undefined && m.id !== null)
+    : single!.id !== undefined && single!.id !== null;
+
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+    accept: "application/json, text/event-stream",
+    "user-agent": `21st-magic-shim/${VERSION}`,
+  };
+  if (apiKey) headers["x-api-key"] = apiKey;
+  if (sessionId) headers["mcp-session-id"] = sessionId;
+
+  let res: Response;
+  let text: string;
+  try {
+    res = await fetch(endpoint, { method: "POST", headers, body: line });
+    text = await res.text();
+  } catch (e) {
+    if (expectsReply) {
+      const detail = e instanceof Error ? e.message : String(e);
+      writeOut(
+        rpcError(
+          single?.id ?? null,
+          -32000,
+          `21st MCP endpoint unreachable (${endpoint}): ${detail}`,
+        ),
+      );
+    }
+    return;
+  }
+
+  const newSession = res.headers.get("mcp-session-id");
+  if (newSession) sessionId = newSession;
+
+  if (!expectsReply) return; // notification - nothing to write back
+  if (!text.trim()) {
+    writeOut(
+      rpcError(single?.id ?? null, -32000, `Empty response (HTTP ${res.status})`),
+    );
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(text);
+    // Auth failures come back with id:null; restore the request id so strict
+    // clients can correlate (and agents get to read the "key was reset" text).
+    if (
+      single &&
+      parsed &&
+      !Array.isArray(parsed) &&
+      parsed.id == null &&
+      single.id != null
+    ) {
+      parsed.id = single.id;
+    }
+    writeOut(parsed);
+  } catch {
+    writeOut(
+      rpcError(
+        single?.id ?? null,
+        -32000,
+        `Non-JSON response (HTTP ${res.status}): ${text.slice(0, 300)}`,
+      ),
+    );
+  }
+}
+
+const rl = createInterface({ input: process.stdin, terminal: false });
+// Sequential pump: strict request ordering, one in-flight request at a time.
+// MCP clients pipeline rarely enough that this is not a bottleneck, and it
+// guarantees the initialize -> session-id handshake lands before anything else.
+let queue: Promise<void> = Promise.resolve();
+rl.on("line", (line) => {
+  if (!line.trim()) return;
+  queue = queue.then(() => forward(line));
+});
+rl.on("close", () => {
+  void queue.then(() => process.exit(0));
 });

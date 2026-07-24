@@ -1,217 +1,59 @@
-# 21st.dev Magic AI Agent
+# Magic MCP → 21st MCP
 
-![MCP Banner](https://21st.dev/magic-agent-og-image.png)
+> **Magic MCP is now the 21st MCP.** The Magic MCP server (`@21st-dev/magic`) has been replaced by the unified **21st MCP** at `https://21st.dev/api/mcp`, installed via the **21st CLI**. This package remains published as a thin compatibility proxy so old configs keep working.
 
-Magic Component Platform (MCP) is a powerful AI-driven tool that helps developers create beautiful, modern UI components instantly through natural language descriptions. It integrates seamlessly with popular IDEs and provides a streamlined workflow for UI development.
-
-## 🌟 Features
-
-- **AI-Powered UI Generation**: Create UI components by describing them in natural language
-- **Multi-IDE Support**:
-  - [Cursor](https://cursor.com) IDE integration
-  - [Windsurf](https://windsurf.ai) support
-  - [VSCode](https://code.visualstudio.com/) support
-  - [VSCode + Cline](https://cline.bot) integration (Beta)
-- **Modern Component Library**: Access to a vast collection of pre-built, customizable components inspired by [21st.dev](https://21st.dev)
-- **Real-time Preview**: Instantly see your components as you create them
-- **TypeScript Support**: Full TypeScript support for type-safe development
-- **SVGL Integration**: Access to a vast collection of professional brand assets and logos
-- **Component Enhancement**: Improve existing components with advanced features and animations (Coming Soon)
-
-## 🎯 How It Works
-
-1. **Tell Agent What You Need**
-
-   - In your AI Agent's chat, just type `/ui` and describe the component you're looking for
-   - Example: `/ui create a modern navigation bar with responsive design`
-
-2. **Let Magic Create It**
-
-   - Your IDE prompts you to use Magic
-   - Magic instantly builds a polished UI component
-   - Components are inspired by 21st.dev's library
-
-3. **Seamless Integration**
-   - Components are automatically added to your project
-   - Start using your new UI components right away
-   - All components are fully customizable
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (Latest LTS version recommended)
-- One of the supported IDEs:
-  - Cursor
-  - Windsurf
-  - VSCode (with Cline extension)
-
-### Installation
-
-1. **Generate API Key**
-
-   - Visit [21st.dev Magic Console](https://21st.dev/magic/console)
-   - Generate a new API key
-
-2. **Choose Installation Method**
-
-#### Method 1: CLI Installation (Recommended)
-
-One command to install and configure MCP for your IDE:
+## Install the 21st MCP (recommended)
 
 ```bash
-npx @21st-dev/cli@latest install <client> --api-key <key>
+npx @21st-dev/cli@latest init --client cursor   # or: claude | vscode | windsurf | codex
 ```
 
-Supported clients: cursor, windsurf, cline, claude
-
-#### Method 2: Manual Configuration
-
-If you prefer manual setup, add this to your IDE's MCP config file:
+Or add it manually — it is a plain HTTP MCP server:
 
 ```json
 {
   "mcpServers": {
-    "@21st-dev/magic": {
-      "command": "npx",
-      "args": ["-y", "@21st-dev/magic@latest", "API_KEY=\"your-api-key\""]
+    "21st": {
+      "url": "https://21st.dev/api/mcp",
+      "headers": { "x-api-key": "YOUR_21ST_API_KEY" }
     }
   }
 }
 ```
 
-Config file locations:
+Get an API key at [21st.dev/mcp](https://21st.dev/mcp).
 
-- Cursor: `~/.cursor/mcp.json`
-- Windsurf: `~/.codeium/windsurf/mcp_config.json`
-- Cline: `~/.cline/mcp_config.json`
-- Claude: `~/.claude/mcp_config.json`
+> **Old Magic API keys were reset.** Keys issued by the old Magic console no longer work anywhere. Generate a fresh key at [21st.dev/mcp](https://21st.dev/mcp).
 
-#### Method 3: VS Code Installation
+## What this package does now (v0.2.0+)
 
-For one-click installation, click one of the install buttons below:
+`npx -y @21st-dev/magic@latest API_KEY="..."` still works: since v0.2.0 it is a small stdio proxy that forwards every MCP message to `https://21st.dev/api/mcp`. Existing `mcp.json` entries that reference `@21st-dev/magic` keep functioning — but they now speak to the same server as the 21st CLI, with the full current toolset.
 
-[![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-NPM-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=%4021st-dev%2Fmagic&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%4021st-dev%2Fmagic%40latest%22%5D%2C%22env%22%3A%7B%22API_KEY%22%3A%22%24%7Binput%3AapiKey%7D%22%7D%7D&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22apiKey%22%2C%22description%22%3A%2221st.dev+Magic+API+Key%22%2C%22password%22%3Atrue%7D%5D) [![Install with NPX in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-NPM-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=%4021st-dev%2Fmagic&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%4021st-dev%2Fmagic%40latest%22%5D%2C%22env%22%3A%7B%22API_KEY%22%3A%22%24%7Binput%3AapiKey%7D%22%7D%7D&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22apiKey%22%2C%22description%22%3A%2221st.dev+Magic+API+Key%22%2C%22password%22%3Atrue%7D%5D&quality=insiders)
+The API key is accepted in all the historical forms: positional `API_KEY="..."`, `--API_KEY=...`, `/API_KEY:...`, `-API_KEY ...`, or the `TWENTY_FIRST_API_KEY` / `API_KEY_21ST` environment variables.
 
-##### Manual VS Code Setup
+## Old tool names → new tool names
 
-First, check the install buttons above for one-click installation. For manual setup:
+The 21st MCP still accepts the legacy Magic tool names and translates them, so agents that remember the old names keep working. Prefer the new names:
 
-Add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`:
+| Legacy Magic tool | 21st MCP tool |
+| --- | --- |
+| `21st_magic_component_builder` | `generate` |
+| `21st_magic_component_inspiration` | `get_inspiration` |
+| `21st_magic_component_refiner` | `generate` (new generation from the refinement prompt) |
+| `logo_search` | `search_logo` (one query per call) |
 
-```json
-{
-  "mcp": {
-    "inputs": [
-      {
-        "type": "promptString",
-        "id": "apiKey",
-        "description": "21st.dev Magic API Key",
-        "password": true
-      }
-    ],
-    "servers": {
-      "@21st-dev/magic": {
-        "command": "npx",
-        "args": ["-y", "@21st-dev/magic@latest"],
-        "env": {
-          "API_KEY": "${input:apiKey}"
-        }
-      }
-    }
-  }
-}
-```
+The current server exposes much more than the old four tools: catalog search across components/themes/templates, paid code retrieval, bookmarks, team libraries, UI generation with variants, profile management, and more. Connect and call `tools/list` to see the full set.
 
-Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace:
+## Links
 
-```json
-{
-  "inputs": [
-    {
-      "type": "promptString",
-      "id": "apiKey",
-      "description": "21st.dev Magic API Key",
-      "password": true
-    }
-  ],
-  "servers": {
-    "@21st-dev/magic": {
-      "command": "npx",
-      "args": ["-y", "@21st-dev/magic@latest"],
-      "env": {
-        "API_KEY": "${input:apiKey}"
-      }
-    }
-  }
-}
-```
+- 21st MCP setup & API keys: https://21st.dev/mcp
+- 21st CLI on npm: https://www.npmjs.com/package/@21st-dev/cli
+- 21st.dev — discover, publish, and generate UI components: https://21st.dev
 
-## ❓ FAQ
+## FAQ
 
-### How does Magic AI Agent handle my codebase?
+**Why did my old Magic MCP stop working?**
+The Magic backend (`magic.21st.dev`) was superseded by the unified 21st MCP, and all old API keys were reset for security. Update to a fresh key from [21st.dev/mcp](https://21st.dev/mcp) — your existing `@21st-dev/magic` config will then work again through this compatibility proxy, though we recommend switching to `npx @21st-dev/cli@latest init`.
 
-Magic AI Agent only writes or modifies files related to the components it generates. It follows your project's code style and structure, and integrates seamlessly with your existing codebase without affecting other parts of your application.
-
-### Can I customize the generated components?
-
-Yes! All generated components are fully editable and come with well-structured code. You can modify the styling, functionality, and behavior just like any other React component in your codebase.
-
-### What happens if I run out of generations?
-
-If you exceed your monthly generation limit, you'll be prompted to upgrade your plan. You can upgrade at any time to continue generating components. Your existing components will remain fully functional.
-
-### How soon do new components get added to 21st.dev's library?
-
-Authors can publish components to 21st.dev at any time, and Magic Agent will have immediate access to them. This means you'll always have access to the latest components and design patterns from the community.
-
-### Is there a limit to component complexity?
-
-Magic AI Agent can handle components of varying complexity, from simple buttons to complex interactive forms. However, for best results, we recommend breaking down very complex UIs into smaller, manageable components.
-
-## 🛠️ Development
-
-### Project Structure
-
-```
-mcp/
-├── app/
-│   └── components/     # Core UI components
-├── types/             # TypeScript type definitions
-├── lib/              # Utility functions
-└── public/           # Static assets
-```
-
-### Key Components
-
-- `IdeInstructions`: Setup instructions for different IDEs
-- `ApiKeySection`: API key management interface
-- `WelcomeOnboarding`: Onboarding flow for new users
-
-## 🤝 Contributing
-
-We welcome contributions! Please join our [Discord community](https://discord.gg/Qx4rFunHfm) and provide feedback to help improve Magic Agent. The source code is available on [GitHub](https://github.com/serafimcloud/21st).
-
-## 👥 Community & Support
-
-- [Discord Community](https://discord.gg/Qx4rFunHfm) - Join our active community
-- [Twitter](https://x.com/serafimcloud) - Follow us for updates
-
-## ⚠️ Beta Notice
-
-Magic Agent is currently in beta. All features are free during this period. We appreciate your feedback and patience as we continue to improve the platform.
-
-## 📝 License
-
-MIT License
-
-## 🙏 Acknowledgments
-
-- Thanks to our beta testers and community members
-- Special thanks to the Cursor, Windsurf, and Cline teams for their collaboration
-- Integration with [21st.dev](https://21st.dev) for component inspiration
-- [SVGL](https://svgl.app) for logo and brand asset integration
-
----
-
-For more information, join our [Discord community](https://discord.gg/Qx4rFunHfm) or visit [21st.dev/magic](https://21st.dev/magic).
+**Is `/ui` still a thing?**
+Use natural language: ask your agent to search 21st for components (`search`), or generate new UI (`generate`). The old `/ui`, `/21` trigger phrases were a convention of the legacy tools' descriptions, not the protocol.
