@@ -1,5 +1,7 @@
 # Magic MCP → 21st MCP
 
+[![MCP Toplist](https://mcptoplist.com/badge/glama%2F21st-dev%2Fmagic-mcp.svg)](https://mcptoplist.com/server/glama%2F21st-dev%2Fmagic-mcp)
+
 > **Magic MCP is now the 21st MCP.** The Magic MCP server (`@21st-dev/magic`) has been replaced by the unified **21st MCP**, installed via the **21st CLI** — setup at [21st.dev/mcp](https://21st.dev/mcp). This package remains published as a thin compatibility proxy so old configs keep working.
 
 ## Install the 21st MCP (recommended)
