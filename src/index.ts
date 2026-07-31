@@ -17,7 +17,7 @@
 
 import { createInterface } from "node:readline";
 
-const VERSION = "0.2.0";
+const VERSION = "0.2.2";
 const DEFAULT_ENDPOINT = "https://21st.dev/api/mcp";
 
 // ---------------------------------------------------------------------------
@@ -103,6 +103,18 @@ function rpcError(id: unknown, code: number, message: string) {
   return { jsonrpc: "2.0", id: id ?? null, error: { code, message } };
 }
 
+// The endpoint's own wording, so an agent reads the same sentence whether the
+// refusal came from here or from the server.
+const NOT_AUTHED =
+  "Not authenticated - your API key is missing or was reset. Get a fresh key at https://21st.dev/mcp and update your MCP config (x-api-key / Bearer).";
+
+// Latched once the endpoint answers 401. A key cannot become valid inside one
+// process: this proxy reads it at startup from argv/env and never re-reads it.
+// Without the latch the host client re-runs `initialize` after every failure
+// and the proxy dutifully forwards it forever - the endpoint saw ~100k of those
+// an hour after 0.2.0 shipped, from clients that could never succeed.
+let authRefused = false;
+
 async function forward(line: string): Promise<void> {
   let msg: JsonRpcMsg | JsonRpcMsg[];
   try {
@@ -116,6 +128,15 @@ async function forward(line: string): Promise<void> {
   const expectsReply = Array.isArray(msg)
     ? msg.some((m) => m && m.id !== undefined && m.id !== null)
     : single!.id !== undefined && single!.id !== null;
+
+  // Answer locally when the outcome is already known: no key was found at all,
+  // or the endpoint has already refused this one. Both are settled for the life
+  // of the process, so sending the request would only cost both sides a round
+  // trip to reach the same sentence.
+  if (!apiKey || authRefused) {
+    if (expectsReply) writeOut(rpcError(single?.id ?? null, -32001, NOT_AUTHED));
+    return;
+  }
 
   const headers: Record<string, string> = {
     "content-type": "application/json",
@@ -143,6 +164,8 @@ async function forward(line: string): Promise<void> {
     }
     return;
   }
+
+  if (res.status === 401) authRefused = true;
 
   const newSession = res.headers.get("mcp-session-id");
   if (newSession) sessionId = newSession;
