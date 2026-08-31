@@ -44,6 +44,16 @@ The 21st MCP still accepts the legacy Magic tool names and translates them, so a
 
 The current server exposes much more than the old four tools: catalog search across components/themes/templates, paid code retrieval, bookmarks, team libraries, UI generation with variants, profile management, and more. Connect and call `tools/list` to see the full set.
 
+## Install as a plugin
+
+This repository is also packaged as an agent plugin (MCP server + a UI skill):
+
+- **Cursor / Grok Bot** — install "21st" from the [Cursor Marketplace](https://cursor.com/marketplace), then set your `API_KEY_21ST` under **Plugins → Configure**. Get a key at [21st.dev/mcp](https://21st.dev/mcp).
+- **Grok Build** — `grok plugin install 21st --trust` (from the official [xAI marketplace](https://github.com/xai-org/plugin-marketplace)), then export `API_KEY_21ST`.
+- **Claude Code** — the repo carries a `.claude-plugin/` manifest: `/plugin install` it from any marketplace that lists this repo, or load locally with `claude --plugin-dir .` and export `API_KEY_21ST`.
+
+The plugin config expects the API key in the `API_KEY_21ST` variable in every client.
+
 ## Links
 
 - 21st MCP setup & API keys: https://21st.dev/mcp
