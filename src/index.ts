@@ -207,11 +207,30 @@ const rl = createInterface({ input: process.stdin, terminal: false });
 // Sequential pump: strict request ordering, one in-flight request at a time.
 // MCP clients pipeline rarely enough that this is not a bottleneck, and it
 // guarantees the initialize -> session-id handshake lands before anything else.
-let queue: Promise<void> = Promise.resolve();
+const pendingLines: string[] = [];
+let drainPromise: Promise<void> | undefined;
+
+function drainQueue(): Promise<void> {
+  if (drainPromise) return drainPromise;
+
+  drainPromise = (async () => {
+    while (pendingLines.length > 0) {
+      const next = pendingLines.shift();
+      if (next !== undefined) await forward(next);
+    }
+  })().finally(() => {
+    drainPromise = undefined;
+    if (pendingLines.length > 0) void drainQueue();
+  });
+
+  return drainPromise;
+}
+
 rl.on("line", (line) => {
   if (!line.trim()) return;
-  queue = queue.then(() => forward(line));
+  pendingLines.push(line);
+  void drainQueue();
 });
 rl.on("close", () => {
-  void queue.then(() => process.exit(0));
+  void drainQueue().then(() => process.exit(0));
 });
