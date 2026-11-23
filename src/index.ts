@@ -208,10 +208,48 @@ const rl = createInterface({ input: process.stdin, terminal: false });
 // MCP clients pipeline rarely enough that this is not a bottleneck, and it
 // guarantees the initialize -> session-id handshake lands before anything else.
 let queue: Promise<void> = Promise.resolve();
+
+// `notifications/cancelled` is the one message that waiting its turn destroys:
+// it exists to stop a request that is running now, so queueing it behind that
+// very request tells the endpoint only after it has already answered, and a
+// user's Stop still costs them the whole generation. While something is in
+// flight the cancellation goes out at once; with nothing in flight there is
+// nothing to cancel, so it queues like everything else and the handshake order
+// is untouched.
+let busy = 0;
+
+// A cancellation carries no reply, so it is not part of the ordered pump's
+// output; it still has to be flushed before the process exits.
+const sending = new Set<Promise<void>>();
+
+function isCancellation(line: string): boolean {
+  if (!line.includes("notifications/cancelled")) return false;
+  try {
+    const msg = JSON.parse(line) as JsonRpcMsg | JsonRpcMsg[];
+    return !Array.isArray(msg) && msg?.method === "notifications/cancelled";
+  } catch {
+    return false;
+  }
+}
+
 rl.on("line", (line) => {
   if (!line.trim()) return;
-  queue = queue.then(() => forward(line));
+  if (busy > 0 && isCancellation(line)) {
+    const sent = forward(line);
+    sending.add(sent);
+    void sent.finally(() => sending.delete(sent));
+    return;
+  }
+  busy++;
+  queue = queue.then(async () => {
+    try {
+      await forward(line);
+    } finally {
+      busy--;
+    }
+  });
 });
 rl.on("close", () => {
-  void queue.then(() => process.exit(0));
+  const drain = Promise.allSettled([...sending]).then(() => queue);
+  void drain.then(() => process.exit(0));
 });
